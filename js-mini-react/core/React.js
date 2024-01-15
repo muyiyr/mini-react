@@ -40,7 +40,7 @@ function render(el, container) {
 const React = {
     render,
     createElement,
-    createTextNode,
+    // createTextNode,
 };
 
 export default React
