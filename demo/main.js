@@ -1,20 +1,21 @@
-
+// v1
 // console.log('main.js')
-
 // const dom = document.createElement('div')
 // dom.id = 'app'
 // document.querySelector("#root").append(dom)
-
 // const textNode = document.createTextNode('test')
-
 // dom.append(textNode)
-// const textEl = {
-//     type: "TEXT_ELEMENT",
-//     props: {
-//         nodeValue: "test",
-//         children: []
-//     }
-// }
+
+
+// v2 react -> vdom -> js object
+// type props children
+const textEl = {
+    type: "TEXT_ELEMENT",
+    props: {
+        nodeValue: "test",
+        children: []
+    }
+}
 
 const createTextNode = (text) => {
     return {
@@ -25,13 +26,14 @@ const createTextNode = (text) => {
         }
     }
 }
-// const el = {
-//     type: "div",
-//     props: {
-//         id: 'app',
-//         children: [textEl]
-//     }
-// }
+
+const el = {
+    type: "div",
+    props: {
+        id: 'app',
+        children: [textEl]
+    }
+}
 
 const createElement = (type, props, ...children) => {
     console.log(...children, children)
@@ -43,22 +45,27 @@ const createElement = (type, props, ...children) => {
         }
     }
 }
-const textEl = createTextNode("heihei")
-const App = createElement('div', { id: 'app' }, textEl)
 
-const dom = document.createElement(App.type)
-dom.id = App.props.id
-document.querySelector("#root").append(dom)
 
-const textNode = document.createTextNode(textEl.props.nodeValue)
+// const textEl = createTextNode("heihei")
+// const App = createElement('div', { id: 'app' }, textEl)
 
-dom.append(textNode)
+// const dom = document.createElement(App.type)
+// dom.id = App.props.id
+// document.querySelector("#root").append(dom)
 
+// const textNode = document.createTextNode(textEl.props.nodeValue)
+
+// dom.append(textNode)
 
 // const el = document.createElement("div");
 // el.innerText = "heihei";
 // document.body.append(el);
 
+// // 合到一起，render 方法
+// const render = () => {
+//     const dom = el.type === "TEXT_ELEMENT" ? document.createTextNode(el.props.nodeValue) : document.createElement(el.type);
+// }
 // let i = 0;
 
 // js单线程 执行逻辑阻塞后续渲染
