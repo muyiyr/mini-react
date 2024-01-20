@@ -62,11 +62,47 @@ function workLoop(deadline) {
 function commitRoot() {
     deletions.forEach(commitDeletion);
     deletions = [];
+    commitEffectHooks();
     commitWork(wipRoot.child);
     currentRoot = wipRoot;
     wipRoot = null;
 }
 
+function commitEffectHooks() {
+    function executeEffect(fiber) {
+        if (!fiber) return;
+        if (!fiber.alternate) {
+            fiber.effectHooks?.forEach((effectHook) => {
+                effectHook.cleanUp = effectHook.callback();
+            });
+        } else {
+            // update
+            fiber.effectHooks?.forEach((newHook, index) => {
+                if (!(newHook.dependencies.length > 0)) return;
+                const oldEffectHook = fiber.alternate?.effectHooks[index];
+                const needUpdate = oldEffectHook?.dependencies.some((oldDep, oldIndex) => {
+                    return oldDep !== newHook.dependencies[oldIndex];
+                });
+
+                needUpdate && (newHook.cleanUp = newHook?.callback());
+            });
+        }
+        executeEffect(fiber.child);
+        executeEffect(fiber.sibling);
+    }
+    function executeCleanUp(fiber) {
+        if (!fiber) return
+
+        fiber.alternate?.effectHooks?.forEach((hook) => {
+            if (!(hook.dependencies.length > 0)) return;
+            hook?.cleanUp?.();
+        })
+        executeCleanUp(fiber.child)
+        executeCleanUp(fiber.sibling)
+    }
+    executeCleanUp(wipRoot)
+    executeEffect(wipRoot);
+}
 function commitDeletion(fiber) {
     if (fiber.dom) {
         let fiberParent = fiber.parent;
@@ -271,4 +307,13 @@ function useState(initial) {
     return [stateHook.state, setState];
 }
 
+function useEffect(callback, dependencies) {
+    const effectHook = {
+        callback,
+        dependencies,
+        cleanUp: undefined,
+    };
+    effectHooks.push(effectHook);
+    wipFiber.effectHooks = effectHooks;
+}
 export default { createElement, useState, render, update };
